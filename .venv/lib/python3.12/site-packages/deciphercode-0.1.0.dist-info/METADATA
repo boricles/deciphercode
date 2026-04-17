@@ -24,6 +24,7 @@ Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: click>=8.1
 Requires-Dist: openai>=1.0
+Requires-Dist: anthropic>=0.30
 Requires-Dist: rich>=13.0
 Requires-Dist: gitpython>=3.1
 Requires-Dist: pyyaml>=6.0
@@ -59,11 +60,11 @@ Works with any OpenAI-compatible API: OpenAI, Ollama, Azure OpenAI, Anthropic (v
 
 ### Installation
 
+<!--
 ```bash
 pip install deciphercode
 ```
-
-Or install from source:
+Or--> install from source:
 
 ```bash
 git clone https://github.com/deciphercode/deciphercode.git
@@ -73,24 +74,33 @@ pip install -e ".[dev]"
 
 ### Configuration
 
-DecipherCode needs an OpenAI-compatible API. Configure it with environment variables:
+DecipherCode supports multiple LLM providers. Configure via environment variables:
 
 ```bash
-# For OpenAI
+# OpenAI
 export DECIPHER_API_BASE="https://api.openai.com/v1"
 export DECIPHER_API_KEY="sk-..."
 export DECIPHER_MODEL="gpt-4o"
 
-# For Ollama (default, no key needed)
+# Ollama (default, no key needed)
 export DECIPHER_API_BASE="http://localhost:11434/v1"
 export DECIPHER_API_KEY="ollama"
 export DECIPHER_MODEL="llama3"
 
-# For Azure OpenAI
-export DECIPHER_API_BASE="https://your-resource.openai.azure.com/openai/deployments/your-deployment/v1"
+# Azure OpenAI (auto-detected from URL)
+export DECIPHER_API_BASE="https://your-resource.cognitiveservices.azure.com"
 export DECIPHER_API_KEY="your-azure-key"
-export DECIPHER_MODEL="gpt-4o"
+export DECIPHER_MODEL="your-deployment-name"
+export DECIPHER_API_VERSION="2024-10-21"    # optional, this is the default
+
+# Anthropic via proxy
+export DECIPHER_API_PROVIDER="anthropic"
+export DECIPHER_API_BASE="http://localhost:8080"
+export DECIPHER_API_KEY="your-anthropic-key"
+export DECIPHER_MODEL="claude-opus-4-6"
 ```
+
+**Provider auto-detection:** If your `DECIPHER_API_BASE` URL contains `azure.com`, the Azure OpenAI client is used automatically. Set `DECIPHER_API_PROVIDER` explicitly to force a specific provider (`openai`, `azure`, or `anthropic`).
 
 ### Usage
 
@@ -180,14 +190,17 @@ deciphercode/
 
 | Environment Variable | Default | Description |
 |---|---|---|
-| `DECIPHER_API_BASE` | `http://localhost:11434/v1` | OpenAI-compatible API base URL |
+| `DECIPHER_API_BASE` | `http://localhost:11434/v1` | API base URL |
 | `DECIPHER_API_KEY` | `ollama` | API key (use `ollama` for local Ollama) |
-| `DECIPHER_MODEL` | `llama3` | Model name to use |
+| `DECIPHER_MODEL` | `llama3` | Model name (or Azure deployment name) |
+| `DECIPHER_API_PROVIDER` | *(auto-detected)* | Force a provider: `openai`, `azure`, or `anthropic` |
+| `DECIPHER_API_VERSION` | `2024-10-21` | Azure OpenAI API version |
 
 ## Dependencies
 
 - [Click](https://click.palletsprojects.com/) - CLI framework
-- [OpenAI Python SDK](https://github.com/openai/openai-python) - LLM API client (works with any compatible endpoint)
+- [OpenAI Python SDK](https://github.com/openai/openai-python) - OpenAI and Azure OpenAI client
+- [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) - Anthropic API client
 - [Rich](https://rich.readthedocs.io/) - Terminal formatting and progress bars
 - [GitPython](https://gitpython.readthedocs.io/) - Git history analysis
 - [tiktoken](https://github.com/openai/tiktoken) - Token counting for prompt management
