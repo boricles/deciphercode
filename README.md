@@ -1,8 +1,10 @@
 # DecipherCode
 
-![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
-![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![CLI: Click](https://img.shields.io/badge/cli-click-orange)
+[![GitHub release](https://img.shields.io/github/v/release/boricles/deciphercode?include_prereleases&label=version)](https://github.com/boricles/deciphercode/releases)
+[![GitHub stars](https://img.shields.io/github/stars/boricles/deciphercode)](https://github.com/boricles/deciphercode/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/boricles/deciphercode)](https://github.com/boricles/deciphercode/network/members)
+[![License: MIT](https://img.shields.io/github/license/boricles/deciphercode)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
 
 **Give your legacy code a voice.**
 
@@ -12,12 +14,12 @@ Works with any OpenAI-compatible API: OpenAI, Ollama, Azure OpenAI, Anthropic (v
 
 ## Features
 
-- **Full repo analysis** - Detect languages, frameworks, architecture patterns, APIs, database models, environment variables, and dead code
-- **README generation** - Generate a professional README.md complete with badges, setup instructions, and API documentation
-- **Architecture diagrams** - Produce Mermaid or GraphViz DOT diagrams showing components, data flow, and module dependencies
-- **Git archaeology** - Analyze commit history to find contributors, tech debt hotspots, and project evolution narrative
-- **Interactive Q&A** - Ask natural language questions about any codebase and get precise, context-aware answers
-- **LLM-agnostic** - Configure once via environment variables; works with any OpenAI-compatible endpoint
+- :mag: **Full Repo Analysis** - Detect languages, frameworks, architecture patterns, APIs, database models, environment variables, and dead code
+- :page_facing_up: **README Generation** - Generate a professional README.md complete with badges, setup instructions, and API documentation
+- :triangular_ruler: **Architecture Diagrams** - Produce Mermaid or GraphViz DOT diagrams showing components, data flow, and module dependencies
+- :scroll: **Git Archaeology** - Analyze commit history to find contributors, tech debt hotspots, and project evolution narrative
+- :speech_balloon: **Interactive Q&A** - Ask natural language questions about any codebase and get precise, context-aware answers
+- :electric_plug: **LLM-Agnostic** - Configure once via environment variables; works with OpenAI, Azure OpenAI, Anthropic, and Ollama
 
 ## Quick Start
 
@@ -27,10 +29,10 @@ Works with any OpenAI-compatible API: OpenAI, Ollama, Azure OpenAI, Anthropic (v
 ```bash
 pip install deciphercode
 ```
-Or--> install from source:
+Or--> Install from source:
 
 ```bash
-git clone https://github.com/deciphercode/deciphercode.git
+git clone https://github.com/boricles/deciphercode.git
 cd deciphercode
 pip install -e ".[dev]"
 ```
@@ -130,9 +132,9 @@ deciphercode/
 │   ├── archaeologist.py     # Git history analysis
 │   ├── diagrammer.py        # Mermaid/DOT diagram generation
 │   ├── interactive.py       # Interactive Q&A mode
-│   ├── llm.py               # LLM client wrapper
+│   ├── llm.py               # LLM client wrapper (OpenAI, Azure, Anthropic)
 │   └── utils.py             # File reading, language detection, helpers
-├── tests/                   # Test suite
+├── tests/                   # Test suite (72 tests)
 ├── examples/                # Sample outputs
 ├── pyproject.toml           # Project metadata and dependencies
 ├── LICENSE                  # MIT
@@ -141,7 +143,7 @@ deciphercode/
 
 ## How It Works
 
-1. **Scan** - DecipherCode walks the directory tree, identifies source files, detects languages and frameworks, finds dependency files, maps config and environment variables, and identifies entry points.
+1. **Scan** - Walks the directory tree, identifies source files, detects languages and frameworks, finds dependency files, maps config and environment variables, and identifies entry points.
 
 2. **Analyze** - Representative source files are sampled and sent to the LLM along with the project structure. The LLM identifies the architecture pattern, components, API routes, database models, dead code candidates, and key observations.
 
@@ -187,13 +189,17 @@ ruff check decipher/ tests/
 
 ## Contributing
 
-Contributions are welcome. Please:
+Contributions are welcome! Here's how to get involved:
 
-1. Fork the repository
-2. Create a feature branch
-3. Write tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+1. **Report bugs** - Open an [issue](https://github.com/boricles/deciphercode/issues) with steps to reproduce
+2. **Suggest features** - Describe the use case and expected behavior in an issue
+3. **Submit PRs** - Fork the repo, create a feature branch, add tests, and open a pull request
+
+Please keep PRs focused on a single change and ensure all tests pass before submitting.
+
+## Acknowledgments
+
+This project was built with [Claude Code](https://claude.ai/code) by Anthropic as the primary development tool. Architecture design, implementation, testing, and documentation were developed through collaborative AI-assisted programming.
 
 ## License
 
