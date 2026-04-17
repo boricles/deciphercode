@@ -1,0 +1,188 @@
+# DecipherCode
+
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
+![CLI: Click](https://img.shields.io/badge/cli-click-orange)
+
+**Give your legacy code a voice.**
+
+DecipherCode is a CLI tool that uses LLMs to analyze legacy codebases and generate comprehensive documentation. Point it at any project directory (or GitHub URL) and get instant architecture analysis, README generation, diagrams, and git archaeology reports.
+
+Works with any OpenAI-compatible API: OpenAI, Ollama, Azure OpenAI, Anthropic (via proxy), and more.
+
+## Features
+
+- **Full repo analysis** - Detect languages, frameworks, architecture patterns, APIs, database models, environment variables, and dead code
+- **README generation** - Generate a professional README.md complete with badges, setup instructions, and API documentation
+- **Architecture diagrams** - Produce Mermaid or GraphViz DOT diagrams showing components, data flow, and module dependencies
+- **Git archaeology** - Analyze commit history to find contributors, tech debt hotspots, and project evolution narrative
+- **Interactive Q&A** - Ask natural language questions about any codebase and get precise, context-aware answers
+- **LLM-agnostic** - Configure once via environment variables; works with any OpenAI-compatible endpoint
+
+## Quick Start
+
+### Installation
+
+```bash
+pip install deciphercode
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/deciphercode/deciphercode.git
+cd deciphercode
+pip install -e ".[dev]"
+```
+
+### Configuration
+
+DecipherCode needs an OpenAI-compatible API. Configure it with environment variables:
+
+```bash
+# For OpenAI
+export DECIPHER_API_BASE="https://api.openai.com/v1"
+export DECIPHER_API_KEY="sk-..."
+export DECIPHER_MODEL="gpt-4o"
+
+# For Ollama (default, no key needed)
+export DECIPHER_API_BASE="http://localhost:11434/v1"
+export DECIPHER_API_KEY="ollama"
+export DECIPHER_MODEL="llama3"
+
+# For Azure OpenAI
+export DECIPHER_API_BASE="https://your-resource.openai.azure.com/openai/deployments/your-deployment/v1"
+export DECIPHER_API_KEY="your-azure-key"
+export DECIPHER_MODEL="gpt-4o"
+```
+
+### Usage
+
+```bash
+# Full codebase analysis
+decipher scan ./my-legacy-app
+
+# Generate a README
+decipher readme ./my-legacy-app -o README.md
+
+# Architecture diagrams (Mermaid or DOT)
+decipher diagram ./my-legacy-app --format mermaid
+decipher diagram ./my-legacy-app --format dot -o architecture.dot
+
+# Git archaeology report
+decipher history ./my-legacy-app
+
+# Ask a question
+decipher ask ./my-legacy-app "How does the auth flow work?"
+
+# Interactive Q&A session
+decipher ask ./my-legacy-app
+
+# Scan from a GitHub URL
+decipher scan https://github.com/user/repo
+
+# Export analysis as JSON
+decipher scan ./my-legacy-app --json -o analysis.json
+
+# Verbose mode for debugging
+decipher -v scan ./my-legacy-app
+```
+
+## Commands
+
+| Command | Description |
+|---|---|
+| `decipher scan <target>` | Full analysis: languages, architecture, APIs, dead code, and more |
+| `decipher readme <target>` | Generate a professional README.md |
+| `decipher diagram <target>` | Generate Mermaid or GraphViz architecture diagrams |
+| `decipher history <target>` | Git archaeology: contributors, hotspots, evolution timeline |
+| `decipher ask <target> [question]` | Ask questions about the codebase (interactive if no question given) |
+
+All commands accept a local directory path or a GitHub URL as the target.
+
+## Example Output
+
+See the [examples/](examples/) directory for sample outputs:
+
+- [Scan report](examples/sample-scan-report.md) - Full analysis of a Django e-commerce API
+- [Mermaid diagrams](examples/sample-mermaid-diagram.md) - Component, data flow, and dependency diagrams
+- [Archaeology report](examples/sample-archaeology-report.md) - Git history analysis with contributor and hotspot data
+
+## Project Structure
+
+```
+deciphercode/
+├── decipher/
+│   ├── __init__.py          # Package version
+│   ├── cli.py               # Click CLI commands
+│   ├── scanner.py           # Codebase scanning and file discovery
+│   ├── analyzer.py          # LLM-powered code analysis
+│   ├── readme_generator.py  # README.md generation
+│   ├── archaeologist.py     # Git history analysis
+│   ├── diagrammer.py        # Mermaid/DOT diagram generation
+│   ├── interactive.py       # Interactive Q&A mode
+│   ├── llm.py               # LLM client wrapper
+│   └── utils.py             # File reading, language detection, helpers
+├── tests/                   # Test suite
+├── examples/                # Sample outputs
+├── pyproject.toml           # Project metadata and dependencies
+├── LICENSE                  # MIT
+└── README.md
+```
+
+## How It Works
+
+1. **Scan** - DecipherCode walks the directory tree, identifies source files, detects languages and frameworks, finds dependency files, maps config and environment variables, and identifies entry points.
+
+2. **Analyze** - Representative source files are sampled and sent to the LLM along with the project structure. The LLM identifies the architecture pattern, components, API routes, database models, dead code candidates, and key observations.
+
+3. **Generate** - Based on the analysis, DecipherCode can produce a README, architecture diagrams, or an archaeology report. Each output type uses a specialized prompt designed to produce accurate, well-structured results.
+
+4. **Interactive** - In Q&A mode, the full codebase context is loaded into the conversation, allowing you to ask natural language questions and get precise answers that reference specific files and functions.
+
+## Configuration Reference
+
+| Environment Variable | Default | Description |
+|---|---|---|
+| `DECIPHER_API_BASE` | `http://localhost:11434/v1` | OpenAI-compatible API base URL |
+| `DECIPHER_API_KEY` | `ollama` | API key (use `ollama` for local Ollama) |
+| `DECIPHER_MODEL` | `llama3` | Model name to use |
+
+## Dependencies
+
+- [Click](https://click.palletsprojects.com/) - CLI framework
+- [OpenAI Python SDK](https://github.com/openai/openai-python) - LLM API client (works with any compatible endpoint)
+- [Rich](https://rich.readthedocs.io/) - Terminal formatting and progress bars
+- [GitPython](https://gitpython.readthedocs.io/) - Git history analysis
+- [tiktoken](https://github.com/openai/tiktoken) - Token counting for prompt management
+- [PyYAML](https://pyyaml.org/) - YAML config file parsing
+
+## Development
+
+```bash
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run tests with coverage
+pytest --cov=decipher
+
+# Lint
+ruff check decipher/ tests/
+```
+
+## Contributing
+
+Contributions are welcome. Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Write tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.

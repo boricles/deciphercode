@@ -1,0 +1,2 @@
+[console_scripts]
+decipher = decipher.cli:main
