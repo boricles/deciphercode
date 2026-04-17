@@ -14,15 +14,17 @@ from decipher import __version__
 
 console = Console()
 
-BANNER = r"""
-[bold orange1]    ____            _       __              ______          __   [/bold orange1]
-[bold orange1]   / __ \___  _____(_)___  / /_  ___  _____/ ____/___  ____/ /__ [/bold orange1]
-[bold orange1]  / / / / _ \/ ___/ / __ \/ __ \/ _ \/ ___/ /   / __ \/ __  / _ \[/bold orange1]
-[bold orange1] / /_/ /  __/ /__/ / /_/ / / / /  __/ /  / /___/ /_/ / /_/ /  __/[/bold orange1]
-[bold orange1]/_____/\___/\___/_/ .___/_/ /_/\___/_/   \____/\____/\__,_/\___/ [/bold orange1]
-[bold orange1]                 /_/                                              [/bold orange1]
-[dim]Give your legacy code a voice.[/dim]
-"""
+BANNER = (
+    "[bold green3]"
+    "    ____            _       __              ______          __   \n"
+    "   / __ \\___  _____(_)___  / /_  ___  _____/ ____/___  ____/ /__ \n"
+    "  / / / / _ \\/ ___/ / __ \\/ __ \\/ _ \\/ ___/ /   / __ \\/ __  / _ \\\n"
+    " / /_/ /  __/ /__/ / /_/ / / / /  __/ /  / /___/ /_/ / /_/ /  __/\n"
+    "/_____/\\___/\\___/_/ .___/_/ /_/\\___/_/   \\____/\\____/\\__,_/\\___/ \n"
+    "                 /_/                                              \n"
+    "[/bold green3]\n"
+    "[dim]Give your legacy code a voice.[/dim]"
+)
 
 
 def _setup_logging(verbose: bool) -> None:
