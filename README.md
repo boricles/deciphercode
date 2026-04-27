@@ -20,6 +20,7 @@ Works with any OpenAI-compatible API: OpenAI, Ollama, Azure OpenAI, Anthropic (v
 - :scroll: **Git Archaeology** - Analyze commit history to find contributors, tech debt hotspots, and project evolution narrative
 - :speech_balloon: **Interactive Q&A** - Ask natural language questions about any codebase and get precise, context-aware answers
 - :electric_plug: **LLM-Agnostic** - Configure once via environment variables; works with OpenAI, Azure OpenAI, Anthropic, and Ollama
+- :white_check_mark: **Repository Health Auditor** - `decipher practices` scores a Python project against 8 categories (project structure, testing, quality tooling, CI/CD, licensing, release readiness, dependency hygiene, documentation) with a reproducible fail/warn severity model
 
 ## Quick Start
 
@@ -99,6 +100,28 @@ decipher scan ./my-legacy-app --json -o analysis.json
 decipher -v scan ./my-legacy-app
 ```
 
+## Practices Auditor
+
+Audit any Python repository against software-development best practices:
+
+```bash
+# Default audit (terminal output when TTY, markdown in CI)
+decipher practices /path/to/repo
+
+# JSON report to file
+decipher practices . --format json -o report.json
+
+# Fail CI on warnings (not just failures)
+decipher practices . --strict
+
+# Run only specific checkers
+decipher practices . --only testing,quality_gates
+```
+
+The auditor produces a structured report with per-category scores (0-100) and
+prioritised recommendations. Exit codes: 0 = pass, 1 = fail (or warn with
+`--strict`), 2 = input error.
+
 ## Commands
 
 | Command | Description |
@@ -108,6 +131,7 @@ decipher -v scan ./my-legacy-app
 | `decipher diagram <target>` | Generate Mermaid or GraphViz architecture diagrams |
 | `decipher history <target>` | Git archaeology: contributors, hotspots, evolution timeline |
 | `decipher ask <target> [question]` | Ask questions about the codebase (interactive if no question given) |
+| `decipher practices <target>` | Audit repository against best practices (8 checkers, fail/warn scoring) |
 
 All commands accept a local directory path or a GitHub URL as the target.
 
@@ -150,6 +174,10 @@ deciphercode/
 3. **Generate** - Based on the analysis, DecipherCode can produce a README, architecture diagrams, or an archaeology report. Each output type uses a specialized prompt designed to produce accurate, well-structured results.
 
 4. **Interactive** - In Q&A mode, the full codebase context is loaded into the conversation, allowing you to ask natural language questions and get precise answers that reference specific files and functions.
+
+## Upgrading
+
+See [CHANGELOG.md](CHANGELOG.md) for what's new and [MIGRATION.md](MIGRATION.md) for breaking changes between releases.
 
 ## Configuration Reference
 
