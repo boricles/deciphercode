@@ -42,8 +42,7 @@ def _detect_provider(api_base: str, explicit_provider: str) -> str:
         if normalised in (PROVIDER_OPENAI, PROVIDER_AZURE, PROVIDER_ANTHROPIC):
             return normalised
         raise ValueError(
-            f"Unknown provider '{explicit_provider}'. "
-            f"Supported values: openai, azure, anthropic"
+            f"Unknown provider '{explicit_provider}'. Supported values: openai, azure, anthropic"
         )
 
     for domain in _AZURE_DOMAINS:
@@ -121,8 +120,7 @@ class LLMClient:
 
         if not self.config.api_key or self.config.api_key == "ollama":
             raise ValueError(
-                "Azure OpenAI requires an API key. "
-                "Set DECIPHER_API_KEY to your Azure key."
+                "Azure OpenAI requires an API key. Set DECIPHER_API_KEY to your Azure key."
             )
 
         self._openai = AzureOpenAI(
@@ -195,7 +193,9 @@ class LLMClient:
         temp = temperature if temperature is not None else self.config.temperature
         tokens = max_tokens if max_tokens is not None else self.config.max_tokens
 
-        logger.debug("Sending %d messages to %s [%s]", len(messages), self.config.model, self._provider)
+        logger.debug(
+            "Sending %d messages to %s [%s]", len(messages), self.config.model, self._provider
+        )
 
         response = self._openai.chat.completions.create(
             model=self.config.model,

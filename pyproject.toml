@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deciphercode"
-version = "0.1.0"
+version = "0.2.0"
 description = "Give your legacy code a voice. LLM-powered codebase analysis and documentation generator."
 readme = "README.md"
 license = {text = "MIT"}
@@ -60,3 +60,18 @@ line-length = 100
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["decipher"]
+omit = [
+    "decipher/archaeologist.py",
+    "decipher/diagrammer.py",
+    "decipher/interactive.py",
+    "decipher/readme_generator.py",
+]
+
+[tool.coverage.report]
+fail_under = 80
+
+[tool.mypy]
+strict = true

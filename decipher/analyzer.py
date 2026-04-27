@@ -183,7 +183,7 @@ def _select_sample_files(scan: ScanResult, max_files: int) -> list[str]:
         if f.language:
             by_lang.setdefault(f.language, []).append(f)
 
-    for lang in sorted(by_lang, key=lambda l: -scan.languages.get(l, 0)):
+    for lang in sorted(by_lang, key=lambda ln: -scan.languages.get(ln, 0)):
         files = sorted(by_lang[lang], key=lambda f: -f.lines)
         for f in files[:3]:
             _add(f.path)

@@ -179,8 +179,7 @@ def generate_archaeology_report(
         f"- {h['file']}: changed {h['changes']} times" for h in stats.hotspot_files
     )
     recent_str = "\n".join(
-        f"- [{c['hash']}] {c['date']} ({c['author']}): {c['message']}"
-        for c in stats.recent_commits
+        f"- [{c['hash']}] {c['date']} ({c['author']}): {c['message']}" for c in stats.recent_commits
     )
     tags_str = "\n".join(f"- {t}" for t in stats.tag_history) if stats.tag_history else "no tags"
 

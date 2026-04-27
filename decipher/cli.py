@@ -4,13 +4,17 @@ from __future__ import annotations
 
 import logging
 import sys
+from typing import TYPE_CHECKING
 
 import click
 from rich.console import Console
 from rich.markdown import Markdown
-from rich.panel import Panel
 
 from decipher import __version__
+
+if TYPE_CHECKING:
+    from decipher.analyzer import AnalysisResult
+    from decipher.llm import LLMClient
 
 console = Console()
 
@@ -36,13 +40,13 @@ def _setup_logging(verbose: bool) -> None:
     )
 
 
-def _get_llm() -> "LLMClient":
+def _get_llm() -> LLMClient:
     from decipher.llm import LLMClient
 
     return LLMClient()
 
 
-def _scan_and_analyze(target: str, show_progress: bool = True) -> "AnalysisResult":
+def _scan_and_analyze(target: str, show_progress: bool = True) -> AnalysisResult:
     """Scan + full LLM analysis in one step."""
     from decipher.analyzer import analyze_codebase
     from decipher.scanner import resolve_path, scan_codebase
@@ -121,7 +125,9 @@ def scan(target: str, output: str | None, as_json: bool) -> None:
 
 @main.command()
 @click.argument("target")
-@click.option("-o", "--output", type=click.Path(), default=None, help="Output file (default: stdout).")
+@click.option(
+    "-o", "--output", type=click.Path(), default=None, help="Output file (default: stdout)."
+)
 def readme(target: str, output: str | None) -> None:
     """Generate a README.md for a codebase.
 
@@ -235,7 +241,224 @@ def ask(target: str, question: str | None) -> None:
         interactive_session(analysis, llm)
 
 
-def _format_scan_report(analysis: "AnalysisResult") -> str:
+def _is_ci_env() -> bool:
+    """Detect common CI environment variables."""
+    import os
+
+    ci_vars = [
+        "CI",
+        "GITHUB_ACTIONS",
+        "GITLAB_CI",
+        "JENKINS_URL",
+        "CIRCLECI",
+        "TRAVIS",
+        "BUILDKITE",
+        "TF_BUILD",
+    ]
+    return any(os.environ.get(v) for v in ci_vars)
+
+
+_FORMAT_FROM_EXT = {
+    ".json": "json",
+    ".md": "markdown",
+    ".markdown": "markdown",
+}
+
+
+def _resolve_format(
+    fmt: str | None,
+    json_only: bool,
+    output: str | None,
+) -> str:
+    """Determine the output format from flags, file extension, or environment."""
+    from pathlib import Path as _Path
+
+    if fmt is not None:
+        return fmt
+
+    if json_only:
+        return "json"
+
+    if output is not None:
+        ext = _Path(output).suffix.lower()
+        if ext in _FORMAT_FROM_EXT:
+            return _FORMAT_FROM_EXT[ext]
+        if ext:
+            raise click.UsageError(
+                f"Cannot determine format from extension '{ext}'. "
+                f"Supported: .json, .md. Use --format to specify explicitly."
+            )
+        raise click.UsageError(
+            "Cannot determine format (no file extension). Use --format to specify explicitly."
+        )
+
+    if sys.stdout.isatty() and not _is_ci_env():
+        return "terminal"
+    return "markdown"
+
+
+def _resolve_checkers(
+    only: str | None,
+    skip: str | None,
+    available: list[str],
+) -> list[str]:
+    """Resolve checker list from --only/--skip flags."""
+    if only and skip:
+        raise click.UsageError("--only and --skip are mutually exclusive.")
+
+    if only:
+        names = [n.strip() for n in only.split(",")]
+        unknown = [n for n in names if n not in available]
+        if unknown:
+            raise click.UsageError(
+                f"Unknown checker(s): {', '.join(unknown)}. Available: {', '.join(available)}"
+            )
+        return names
+
+    if skip:
+        names = [n.strip() for n in skip.split(",")]
+        unknown = [n for n in names if n not in available]
+        if unknown:
+            raise click.UsageError(
+                f"Unknown checker(s): {', '.join(unknown)}. Available: {', '.join(available)}"
+            )
+        return [c for c in available if c not in names]
+
+    return available
+
+
+@main.command()
+@click.argument("target")
+@click.option(
+    "--language",
+    default="python",
+    show_default=True,
+    help=(
+        "Language to audit. Only Python is supported in v0.2; "
+        "passing any other value exits with error code 2."
+    ),
+)
+@click.option(
+    "--format",
+    "fmt",
+    type=click.Choice(["terminal", "markdown", "json"]),
+    default=None,
+    help="Output format (default: auto-detect from TTY/CI/extension).",
+)
+@click.option(
+    "--strict",
+    is_flag=True,
+    help="Exit with code 1 on warnings (not just failures).",
+)
+@click.option(
+    "--only",
+    default=None,
+    help="Run only these checkers (comma-separated names).",
+)
+@click.option(
+    "--skip",
+    default=None,
+    help="Skip these checkers (comma-separated names).",
+)
+@click.option("-o", "--output", type=click.Path(), default=None, help="Write report to file.")
+@click.option("--json-only", is_flag=True, hidden=True, help="Deprecated. Use --format json.")
+def practices(
+    target: str,
+    language: str,
+    fmt: str | None,
+    strict: bool,
+    only: str | None,
+    skip: str | None,
+    output: str | None,
+    json_only: bool,
+) -> None:
+    """Audit a repository against software-development best practices.
+
+    Produces a structured report with per-category scores and prioritised
+    recommendations.  Format defaults to a Rich terminal table when stdout
+    is a TTY, Markdown in CI environments, or auto-detected from the -o
+    file extension.
+
+    TARGET is a local directory path.
+    """
+    from io import StringIO
+    from pathlib import Path
+
+    from rich.console import Console as RichConsole
+
+    from decipher.practices.reporter import Reporter
+    from decipher.practices.runner import SUPPORTED_LANGUAGES, run_audit
+
+    if language not in SUPPORTED_LANGUAGES:
+        console.print(
+            f'[red]Unsupported language "{language}". '
+            f"Supported: {', '.join(sorted(SUPPORTED_LANGUAGES))}.[/red]"
+        )
+        sys.exit(2)
+
+    repo_path = Path(target).resolve()
+    if not repo_path.is_dir():
+        console.print(f"[red]Directory not found: {target}[/red]")
+        sys.exit(1)
+
+    resolved_fmt = _resolve_format(fmt, json_only, output)
+    checker_list = _resolve_checkers(
+        only,
+        skip,
+        SUPPORTED_LANGUAGES[language],
+    )
+    show_banner = resolved_fmt == "terminal"
+
+    if show_banner:
+        console.print(BANNER)
+
+    report = run_audit(
+        repo_path,
+        language=language,
+        show_progress=show_banner,
+        checkers=checker_list,
+    )
+    reporter = Reporter()
+
+    if resolved_fmt == "json":
+        text = reporter.to_json(report)
+        if output:
+            with open(output, "w") as f:
+                f.write(text)
+            console.print(f"\n[green]Report saved to {output}[/green]")
+        else:
+            click.echo(text)
+    elif resolved_fmt == "markdown":
+        text = reporter.to_markdown(report)
+        if output:
+            with open(output, "w") as f:
+                f.write(text)
+            console.print(f"\n[green]Report saved to {output}[/green]")
+        else:
+            console.print()
+            console.print(Markdown(text))
+    else:
+        # terminal format
+        renderable = reporter.to_terminal(report)
+        if output:
+            buf = StringIO()
+            file_console = RichConsole(file=buf, no_color=True, width=120)
+            file_console.print(renderable)
+            with open(output, "w") as f:
+                f.write(buf.getvalue())
+            console.print(f"\n[green]Report saved to {output}[/green]")
+        else:
+            console.print()
+            console.print(renderable)
+
+    # Exit codes: 0 = pass/warn, 1 = fail (or warn with --strict), 2 = error
+    if report.overall_status == "fail":
+        sys.exit(1)
+    if strict and report.overall_status == "warn":
+        sys.exit(1)
+
+
+def _format_scan_report(analysis: AnalysisResult) -> str:
     """Format an AnalysisResult as a Markdown report."""
     scan = analysis.scan
     lines = [

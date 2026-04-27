@@ -39,9 +39,7 @@ class TestDetectProvider:
         assert _detect_provider("http://custom-proxy.local", "openai") == PROVIDER_OPENAI
 
     def test_explicit_overrides_domain(self):
-        assert (
-            _detect_provider("https://myres.openai.azure.com", "openai") == PROVIDER_OPENAI
-        )
+        assert _detect_provider("https://myres.openai.azure.com", "openai") == PROVIDER_OPENAI
 
     def test_unknown_provider_raises(self):
         with pytest.raises(ValueError, match="Unknown provider"):
@@ -262,9 +260,7 @@ class TestLLMClientAnthropic:
         with patch("decipher.llm.Anthropic") as MockAnthropic:
             mock_client = MagicMock()
             MockAnthropic.return_value = mock_client
-            mock_client.messages.create.return_value = _mock_anthropic_response(
-                "History response"
-            )
+            mock_client.messages.create.return_value = _mock_anthropic_response("History response")
 
             client = LLMClient(config)
             messages = [

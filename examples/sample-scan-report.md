@@ -1,8 +1,8 @@
 # DecipherCode Analysis Report
 
-**Target:** `/home/user/projects/ecommerce-api`  
-**Files:** 142  
-**Lines of code:** 18,340  
+**Target:** `/home/user/projects/ecommerce-api`
+**Files:** 142
+**Lines of code:** 18,340
 
 ## Languages
 

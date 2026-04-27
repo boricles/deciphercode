@@ -92,7 +92,7 @@ def _gather_key_files(scan: ScanResult, max_files: int = 20, max_lines: int = 10
         if f.language and f.language not in ("JSON", "YAML", "TOML", "Markdown"):
             by_lang.setdefault(f.language, []).append(f)
 
-    for lang in sorted(by_lang, key=lambda l: -scan.languages.get(l, 0)):
+    for lang in sorted(by_lang, key=lambda ln: -scan.languages.get(ln, 0)):
         files = sorted(by_lang[lang], key=lambda f: -f.lines)
         for f in files[:3]:
             if f.path not in selected:

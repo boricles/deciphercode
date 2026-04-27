@@ -8,7 +8,6 @@ import os
 import subprocess
 import tempfile
 from dataclasses import dataclass, field
-from pathlib import Path
 
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
