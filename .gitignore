@@ -15,13 +15,6 @@ dist/
 venv/
 env/
 
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-build/
-
 # IDE
 .idea/
 .vscode/
@@ -36,3 +29,10 @@ build/
 .mypy_cache/
 .coverage
 htmlcov/
+
+# Secrets / credentials
+.env
+.env.*
+*.key
+*.pem
+.pypirc
