@@ -327,15 +327,33 @@ def _resolve_checkers(
     return available
 
 
+def _detect_language(repo_path: str) -> str:
+    """Auto-detect project language from build files.
+
+    Returns 'java' if pom.xml or build.gradle(.kts) is found,
+    otherwise defaults to 'python'.
+    """
+    from pathlib import Path as _Path
+
+    p = _Path(repo_path)
+    if (p / "pom.xml").exists():
+        return "java"
+    if (p / "build.gradle").exists():
+        return "java"
+    if (p / "build.gradle.kts").exists():
+        return "java"
+    return "python"
+
+
 @main.command()
 @click.argument("target")
 @click.option(
     "--language",
-    default="python",
-    show_default=True,
+    default=None,
+    show_default=False,
     help=(
-        "Language to audit. Only Python is supported in v0.2; "
-        "passing any other value exits with error code 2."
+        "Language to audit (python, java). "
+        "Auto-detected from build files if not specified."
     ),
 )
 @click.option(
@@ -364,7 +382,7 @@ def _resolve_checkers(
 @click.option("--json-only", is_flag=True, hidden=True, help="Deprecated. Use --format json.")
 def practices(
     target: str,
-    language: str,
+    language: str | None,
     fmt: str | None,
     strict: bool,
     only: str | None,
@@ -388,6 +406,9 @@ def practices(
 
     from decipher.practices.reporter import Reporter
     from decipher.practices.runner import SUPPORTED_LANGUAGES, run_audit
+
+    if language is None:
+        language = _detect_language(target)
 
     if language not in SUPPORTED_LANGUAGES:
         console.print(

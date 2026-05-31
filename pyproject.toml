@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deciphercode"
-version = "0.2.0"
+version = "0.3.0"
 description = "Give your legacy code a voice. LLM-powered codebase analysis and documentation generator."
 readme = "README.md"
 license = {text = "MIT"}

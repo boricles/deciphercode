@@ -27,7 +27,18 @@ PYTHON_CHECKERS = [
     "release_readiness",
 ]
 
-SUPPORTED_LANGUAGES = {"python": PYTHON_CHECKERS}
+JAVA_CHECKERS = [
+    "project_structure",
+    "testing",
+    "quality_tooling",
+    "ci_cd",
+    "licensing",
+    "release_readiness",
+    "dependency_hygiene",
+    "documentation",
+]
+
+SUPPORTED_LANGUAGES = {"python": PYTHON_CHECKERS, "java": JAVA_CHECKERS}
 
 
 def _load_checker(language: str, checker_name: str) -> object:
